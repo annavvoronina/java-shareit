@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class ObjectExists extends RuntimeException {
-    public ObjectExists(final String message) {
+public class ObjectExistsException extends RuntimeException {
+    public ObjectExistsException(final String message) {
         super(message);
     }
 }

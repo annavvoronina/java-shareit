@@ -2,7 +2,7 @@ package ru.practicum.shareit.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ObjectExists;
+import ru.practicum.shareit.exception.ObjectExistsException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserService implements UserServiceInterface {
 
     private final UserStorage userStorage;
 
@@ -21,29 +21,30 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+    @Override
     public UserDto createUser(UserDto userDto) {
-        User user = new User();
-        UserMapper.toUser(user, userDto);
-        if (!userStorage.checkEmail(user)) {
-            User newUser = userStorage.createUser(user);
-            return UserMapper.toUserDto(newUser);
+        User newUser = UserMapper.toUser(new User(), userDto);
+        if (!userStorage.checkEmail(newUser)) {
+            User createdUser = userStorage.createUser(newUser);
+            return UserMapper.toUserDto(createdUser);
         } else {
-            throw new ObjectExists("Пользователь уже есть в системе");
+            throw new ObjectExistsException("Пользователь уже есть в системе");
         }
     }
 
+    @Override
     public UserDto updateUser(int id, UserDto userDto) {
-        User user = new User(userStorage.getUserById(id));
-        UserMapper.toUser(user, userDto);
+        User user = UserMapper.toUser(new User(userStorage.getUserById(id)), userDto);
         user.setId(id);
         if (!userStorage.checkEmail(user)) {
             User updatedUser = userStorage.updateUser(user);
             return UserMapper.toUserDto(updatedUser);
         } else {
-            throw new ObjectExists("Пользователь уже есть в системе");
+            throw new ObjectExistsException("Пользователь уже есть в системе");
         }
     }
 
+    @Override
     public List<UserDto> findAll() {
         return userStorage.findAll()
                 .stream()
@@ -51,10 +52,12 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public UserDto getUserById(int id) {
         return UserMapper.toUserDto(userStorage.getUserById(id));
     }
 
+    @Override
     public void removeUserById(int id) {
         userStorage.getUserById(id);
         userStorage.removeUserById(id);

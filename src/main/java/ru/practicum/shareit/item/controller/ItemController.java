@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
+    private static final String XSHARERUSERID = "X-Sharer-User-Id";
 
     @Autowired
     public ItemController(ItemService itemService) {
@@ -21,17 +22,17 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> findAll(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemDto> findAll(@RequestHeader(XSHARERUSERID) int userId) {
         return itemService.getItemsByUserId(userId);
     }
 
     @PostMapping
-    public ItemDto createItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") int userId) {
+    public ItemDto createItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader(XSHARERUSERID) int userId) {
         return itemService.createItem(itemDto, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestBody ItemDto itemDto, @PathVariable int itemId, @RequestHeader("X-Sharer-User-Id") int userId) {
+    public ItemDto updateItem(@RequestBody ItemDto itemDto, @PathVariable int itemId, @RequestHeader(XSHARERUSERID) int userId) {
         return itemService.updateItem(itemDto, itemId, userId);
     }
 

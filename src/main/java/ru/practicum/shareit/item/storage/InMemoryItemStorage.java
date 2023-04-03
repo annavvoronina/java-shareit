@@ -7,10 +7,11 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class InMemoryItemStorage implements ItemStorage {
-    private final HashMap<Integer, Item> items = new HashMap();
+    private final Map<Integer, Item> items = new HashMap<>();
     private int idItem = 0;
 
     @Override

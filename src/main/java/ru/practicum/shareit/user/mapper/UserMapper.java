@@ -14,9 +14,10 @@ public class UserMapper {
                 .build();
     }
 
-    public static void toUser(User user, UserDto userDto) {
+    public static User toUser(User user, UserDto userDto) {
         user.setId(userDto.getId());
         Optional.ofNullable(userDto.getName()).ifPresent(user::setName);
         Optional.ofNullable(userDto.getEmail()).ifPresent(user::setEmail);
+        return user;
     }
 }

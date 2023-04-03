@@ -17,9 +17,10 @@ public class ItemMapper {
                 .build();
     }
 
-    public static void toItem(Item item, ItemDto itemDto) {
+    public static Item toItem(Item item, ItemDto itemDto) {
         Optional.ofNullable(itemDto.getName()).ifPresent(item::setName);
         Optional.ofNullable(itemDto.getAvailable()).ifPresent(item::setAvailable);
         Optional.ofNullable(itemDto.getDescription()).ifPresent(item::setDescription);
+        return item;
     }
 }
