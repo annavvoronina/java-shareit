@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.StatusBooking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
@@ -74,11 +75,11 @@ public class ItemServiceImpl implements ItemService {
 
     private ItemDto addBookingsItem(ItemDto dto) {
         Item item = ItemMapper.toItem(new Item(), dto);
-        var lastBookings = bookingRepository.findFirstByItemAndEndIsBeforeOrderByEndDesc(item, LocalDateTime.now());
+        var lastBookings = bookingRepository.findFirstByItemAndStartIsBeforeOrderByEndDesc(item, LocalDateTime.now());
         if (lastBookings != null) {
             dto.setLastBooking(BookingMapper.toBookingDto(lastBookings));
         }
-        var nextBookings = bookingRepository.findFirstByItemAndStartIsAfterOrderByStartDesc(item, LocalDateTime.now());
+        var nextBookings = bookingRepository.findFirstByItemAndStartIsAfterAndStatusIsNotOrderByStartAsc(item, LocalDateTime.now(), StatusBooking.REJECTED);
         if (nextBookings != null) {
             dto.setNextBooking(BookingMapper.toBookingDto(nextBookings));
         }
