@@ -11,9 +11,9 @@ import java.util.List;
 @Data
 @Builder
 public class ItemDto {
-    BookingDto lastBooking;
-    BookingDto nextBooking;
-    List<CommentDto> comments;
+    private BookingDto lastBooking;
+    private BookingDto nextBooking;
+    private List<CommentDto> comments;
     private Long id;
     @NotNull
     @NotBlank

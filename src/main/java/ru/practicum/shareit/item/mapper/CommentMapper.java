@@ -13,7 +13,6 @@ public class CommentMapper {
                 .authorName(comment.getAuthor().getName())
                 .created(comment.getCreated())
                 .build();
-
     }
 
     public static void toComment(Comment comment, CommentDto commentDto) {

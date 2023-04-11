@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusBooking;
@@ -27,6 +28,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
@@ -35,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
+    @Transactional
     public ItemDto createItem(ItemDto itemDto, Long userId) {
         Item newItem = ItemMapper.toItem(new Item(), itemDto);
         var owner = userRepository.findById(userId);
@@ -47,6 +50,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(ItemDto itemDto, Long itemId, Long userId) {
         var item = itemRepository.findById(itemId);
         if (!Objects.equals(item.get().getOwner().getId(), userId)) {
@@ -112,6 +116,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void removeItemById(Long id) {
         itemRepository.deleteById(id);
     }
@@ -127,6 +132,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto createComment(CommentDto commentDto, Long userId, Long itemId) {
         Comment newComment = new Comment();
         CommentMapper.toComment(newComment, commentDto);
