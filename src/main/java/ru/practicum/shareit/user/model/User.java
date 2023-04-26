@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -21,8 +22,6 @@ public class User {
     @Column(name = "username", nullable = false, length = 200)
     @NotEmpty
     private String name;
-    @NotEmpty
-    @Email(message = "не корректный e-mail")
     @Column(name = "email", nullable = false, unique = true, length = 30)
     private String email;
 
