@@ -74,8 +74,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingResponseDto updateBooking(Long bookingId, Long userId, Boolean approved) {
-        Booking updatedBooking;
-        Booking booking = new Booking(bookingRepository.getReferenceById(bookingId));
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ObjectNotFoundException("Бронирование не найдено"));
         if (!Objects.equals(booking.getItem().getOwner().getId(), userId)) {
             throw new ObjectNotFoundException("Вещь другого собственника:" + userId);
         }
@@ -88,8 +88,7 @@ public class BookingServiceImpl implements BookingService {
         } else {
             booking.setStatus(StatusBooking.REJECTED);
         }
-        updatedBooking = bookingRepository.save(booking);
-        return BookingMapper.toBookingResponseDto(updatedBooking);
+        return BookingMapper.toBookingResponseDto(booking);
     }
 
     @Override

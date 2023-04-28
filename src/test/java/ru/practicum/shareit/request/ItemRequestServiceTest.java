@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
@@ -33,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ItemRequestServiceTest {
 
     @Mock
@@ -47,7 +46,6 @@ class ItemRequestServiceTest {
     private UserDto userDto;
     private User user;
     private User user1;
-    private Item item;
 
     @BeforeEach
     void beforeEach() {
@@ -57,9 +55,9 @@ class ItemRequestServiceTest {
         user1 = new User(2L, "User2", "user2@email.ru");
         itemRequest = new ItemRequest(1L, "Request", user, LocalDateTime.now());
         itemRequestDto = new ItemRequestDto(1L, "Request", LocalDateTime.now());
-        item = new Item(1L, "item", "item test", true, user1, itemRequest);
     }
 
+    @Order(1)
     @Test
     void createRequestTest() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
@@ -71,6 +69,7 @@ class ItemRequestServiceTest {
                 itemRequestDb.getCreated().format((DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss"))));
     }
 
+    @Order(2)
     @Test
     void getRequestTest() {
         when(itemRequestRepository.findById(itemRequest.getId())).thenReturn(Optional.of(itemRequest));
@@ -82,11 +81,12 @@ class ItemRequestServiceTest {
                 itemRequestDb.getCreated().format(DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")));
     }
 
+    @Order(3)
     @Test
     void getUserRequests() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         List<ItemRequest> itemRequests = new ArrayList<>(Collections.singletonList(itemRequest));
-        Page<ItemRequest> pagedResponse = new PageImpl(itemRequests);
+        Page<ItemRequest> pagedResponse = new PageImpl<>(itemRequests);
         when(itemRequestRepository.findAllByRequesterId(anyLong(), any(Pageable.class))).thenReturn(pagedResponse);
         List<ItemRequestResponseDto> itemRequestList = itemRequestService.getUserRequests(userDto.getId(), 1, 1);
         assertNotNull(itemRequestList);
@@ -99,11 +99,12 @@ class ItemRequestServiceTest {
         assertNotNull(itemRequestDb.getItems());
     }
 
+    @Order(4)
     @Test
     void getAllRequestTest() {
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
         List<ItemRequest> itemRequests = new ArrayList<>(Collections.singletonList(itemRequest));
-        Page<ItemRequest> pagedResponse = new PageImpl(itemRequests);
+        Page<ItemRequest> pagedResponse = new PageImpl<>(itemRequests);
         when(itemRequestRepository.findAllByRequesterIdIsNot(anyLong(), any(Pageable.class))).thenReturn(pagedResponse);
         List<ItemRequestResponseDto> itemRequestList = itemRequestService.getAllRequests(2L, 1, 1);
         assertEquals(1, itemRequestList.size());

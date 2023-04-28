@@ -58,14 +58,14 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemResponseDto updateItem(ItemDto itemDto, Long itemId, Long userId) {
-        var item = itemRepository.findById(itemId);
-        if (!Objects.equals(item.get().getOwner().getId(), userId)) {
-            throw new ObjectNotFoundException("Пользователь не является собственником");
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ObjectNotFoundException("Вещь не найдена"));
+        if (!userId.equals(item.getOwner().getId())) {
+            throw new ObjectNotFoundException("Собственник не найден");
         }
-        ItemMapper.toItem(item.get(), itemDto);
-        item.get().setId(itemId);
-        Item updatedItem = itemRepository.save(item.get());
-        return ItemMapper.toItemResponseDto(updatedItem);
+        ItemMapper.toItem(item, itemDto);
+        item.setId(itemId);
+        return ItemMapper.toItemResponseDto(item);
     }
 
     @Override

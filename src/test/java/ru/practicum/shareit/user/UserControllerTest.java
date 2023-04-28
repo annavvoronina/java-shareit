@@ -40,14 +40,12 @@ class UserControllerTest {
     private UserDto userDto;
     private UserDto userDto2;
     private UserDto userDto3;
-    private UserDto userDto4;
 
     @BeforeEach
     void beforeEach() {
         userDto = new UserDto(1L, "User1", "user@email.ru");
         userDto2 = new UserDto(1L, "User1", "mail@email.ru");
-        userDto3 = new UserDto(1L, "User1", "mailemail.ru");
-        userDto4 = new UserDto(1L, null, "mail@email.ru");
+        userDto3 = new UserDto(1L, "User1", "mail-email.ru");
     }
 
     @Test

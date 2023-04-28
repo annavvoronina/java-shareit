@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -36,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ItemServiceTest {
 
     @Mock
@@ -61,20 +61,25 @@ class ItemServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        itemService = new ItemServiceImpl(itemRepository, userRepository, bookingRepository, commentRepository, requestRepository);
+        itemService = new ItemServiceImpl(itemRepository, userRepository, bookingRepository, commentRepository,
+                requestRepository);
         user = new User(1L, "user", "user@email.ru");
         item = new Item(1L, "item", "item test", true, user, new ItemRequest());
         comment = new Comment(1L, "Comment", item, user, LocalDateTime.now());
         commentDto = new CommentDto(1L, "Comment", LocalDateTime.now(), "Author Name");
         itemDto = new ItemDto(1L, "item", "item test", true, 1L);
-        booking = new Booking(2L, LocalDateTime.now(), LocalDateTime.now().minusDays(1), item, user, StatusBooking.APPROVED);
+        booking = new Booking(2L, LocalDateTime.now(), LocalDateTime.now().minusDays(1), item, user,
+                StatusBooking.APPROVED);
         itemRequest = new ItemRequest(1L, "description", user, LocalDateTime.now());
         lastBooking = new ArrayList<>();
-        lastBooking.add(new Booking(5L, LocalDateTime.now().minusDays(6), LocalDateTime.now().minusDays(1), item, user, StatusBooking.APPROVED));
+        lastBooking.add(new Booking(5L, LocalDateTime.now().minusDays(6), LocalDateTime.now().minusDays(1), item, user,
+                StatusBooking.APPROVED));
         nextBooking = new ArrayList<>();
-        nextBooking.add(new Booking(7L, LocalDateTime.now(), LocalDateTime.now().minusDays(1), item, user, StatusBooking.APPROVED));
+        nextBooking.add(new Booking(7L, LocalDateTime.now(), LocalDateTime.now().minusDays(1), item, user,
+                StatusBooking.APPROVED));
     }
 
+    @Order(1)
     @Test
     void createItemTest() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
@@ -87,6 +92,18 @@ class ItemServiceTest {
         assertThrows(ObjectNotFoundException.class, () -> itemService.createItem(itemDto, 2L));
     }
 
+    @Order(2)
+    @Test
+    void updateItemTest() {
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
+        ItemResponseDto itemDb = itemService.updateItem(itemDto, 1L, 1L);
+        assertEquals(item.getId(), itemDb.getId());
+        assertEquals(item.getName(), itemDb.getName());
+        assertEquals(item.getDescription(), itemDb.getDescription());
+        assertThrows(ObjectNotFoundException.class, () -> itemService.updateItem(itemDto, 1L, 2L));
+    }
+
+    @Order(3)
     @Test
     void getItemByIdTest() {
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
@@ -97,16 +114,19 @@ class ItemServiceTest {
         assertThrows(ObjectNotFoundException.class, () -> itemService.getItemById(2L, 2L));
     }
 
+    @Order(4)
     @Test
     void getItemsByUserIdTest() {
         Pageable pageable = PageRequest.of(1, 1, Sort.by(Sort.Direction.ASC, "id"));
         Item item = new Item(1L, "item", "item test", true, user, null);
         List<Item> items = new ArrayList<>(Collections.singletonList(item));
-        Page<Item> pagedResponse = new PageImpl(items);
+        Page<Item> pagedResponse = new PageImpl<>(items);
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findAllByOwnerId(1L, pageable)).thenReturn(pagedResponse);
-        when(bookingRepository.findAllByItemInAndStartLessThanEqualAndStatusIsOrderByEndDesc(any(List.class), any(LocalDateTime.class), any(StatusBooking.class))).thenReturn(lastBooking);
-        when(bookingRepository.findAllByItemInAndStartIsAfterAndStatusOrderByStart(any(List.class), any(LocalDateTime.class), any(StatusBooking.class))).thenReturn(nextBooking);
+        when(bookingRepository.findAllByItemInAndStartLessThanEqualAndStatusIsOrderByEndDesc(any(List.class),
+                any(LocalDateTime.class), any(StatusBooking.class))).thenReturn(lastBooking);
+        when(bookingRepository.findAllByItemInAndStartIsAfterAndStatusOrderByStart(any(List.class),
+                any(LocalDateTime.class), any(StatusBooking.class))).thenReturn(nextBooking);
         final List<ItemResponseDto> itemDtoList = itemService.getItemsByUserId(1L, 1, 1);
         assertNotNull(itemDtoList);
         assertEquals(1, itemDtoList.size());
@@ -117,12 +137,13 @@ class ItemServiceTest {
         assertThrows(ObjectNotFoundException.class, () -> itemService.getItemsByUserId(2L, 1, 1));
     }
 
+    @Order(5)
     @Test
     void getItemsByUserIdTestWithoutBooking() {
         Pageable pageable = PageRequest.of(1, 1, Sort.by(Sort.Direction.ASC, "id"));
         Item item = new Item(1L, "item", "item test", true, user, null);
         List<Item> items = new ArrayList<>(Collections.singletonList(item));
-        Page<Item> pagedResponse = new PageImpl(items);
+        Page<Item> pagedResponse = new PageImpl<>(items);
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findAllByOwnerId(1L, pageable)).thenReturn(pagedResponse);
         final List<ItemResponseDto> itemDtoList = itemService.getItemsByUserId(1L, 1, 1);
@@ -135,6 +156,7 @@ class ItemServiceTest {
         assertThrows(ObjectNotFoundException.class, () -> itemService.getItemsByUserId(2L, 1, 1));
     }
 
+    @Order(6)
     @Test
     void removeItemByIdTest() {
         when(itemRepository.findById(item.getId())).thenReturn(Optional.ofNullable(item));
@@ -142,10 +164,11 @@ class ItemServiceTest {
         assertThrows(ObjectNotFoundException.class, () -> itemService.removeItemById(7L));
     }
 
+    @Order(7)
     @Test
     void searchItemsTest() {
         List<Item> items = new ArrayList<>(Collections.singletonList(item));
-        Page<Item> pagedResponse = new PageImpl(items);
+        Page<Item> pagedResponse = new PageImpl<>(items);
         Mockito
                 .when(itemRepository.search(anyString(), any(Pageable.class)))
                 .thenReturn(pagedResponse);
@@ -161,11 +184,13 @@ class ItemServiceTest {
         assertNotNull(itemService.searchItems("test", 1, 1));
     }
 
+    @Order(8)
     @Test
     void createCommentTest() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
-        when(bookingRepository.findFirstByItemAndBookerAndEndIsBeforeAndStatusIs(any(Item.class), any(User.class), any(LocalDateTime.class), any(StatusBooking.class))).thenReturn(booking);
+        when(bookingRepository.findFirstByItemAndBookerAndEndIsBeforeAndStatusIs(any(Item.class),
+                any(User.class), any(LocalDateTime.class), any(StatusBooking.class))).thenReturn(booking);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
         CommentResponseDto comment1 = itemService.createComment(commentDto, 1L, 1L);
         assertEquals(commentDto.getId(), comment1.getId());
@@ -174,11 +199,13 @@ class ItemServiceTest {
         assertThrows(ObjectNotFoundException.class, () -> itemService.createComment(commentDto, 1L, 2L));
     }
 
+    @Order(9)
     @Test
     void createCommentWithoutBookingTest() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
-        when(bookingRepository.findFirstByItemAndBookerAndEndIsBeforeAndStatusIs(any(Item.class), any(User.class), any(LocalDateTime.class), any(StatusBooking.class))).thenReturn(null);
+        when(bookingRepository.findFirstByItemAndBookerAndEndIsBeforeAndStatusIs(any(Item.class), any(User.class),
+                any(LocalDateTime.class), any(StatusBooking.class))).thenReturn(null);
         assertThrows(BadRequestException.class, () -> itemService.createComment(commentDto, 1L, 1L));
     }
 }
