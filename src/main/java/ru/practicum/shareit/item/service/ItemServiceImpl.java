@@ -89,13 +89,11 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime now = LocalDateTime.now();
         List<Booking> lastBookings = bookingRepository.findAllByItemInAndStartLessThanEqualAndStatusIsOrderByEndDesc(items, now, StatusBooking.APPROVED);
         Map<Long, Booking> lastBookingsByItemIds = lastBookings.stream()
-                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity(),
-                        (booking1, booking2) -> booking1));
+                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity(), (booking1, booking2) -> booking1));
         List<Booking> nextBookings = bookingRepository.findAllByItemInAndStartIsAfterAndStatusOrderByStart(
                 items, now, StatusBooking.APPROVED);
         Map<Long, Booking> nextBookingsByItemIds = nextBookings.stream()
-                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity(),
-                        (booking1, booking2) -> booking1));
+                .collect(Collectors.toMap(booking -> booking.getItem().getId(), Function.identity(), (booking1, booking2) -> booking1));
         return items.stream()
                 .map(item -> ItemMapper.toMap(item, commentsByItemIds.get(item.getId()),
                         lastBookingsByItemIds.get(item.getId()), nextBookingsByItemIds.get(item.getId())))

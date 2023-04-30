@@ -22,10 +22,4 @@ public class User {
     private String name;
     @Column(name = "email", nullable = false, unique = true, length = 30)
     private String email;
-
-    public User(User newUser) {
-        this.setId(newUser.getId());
-        this.setName(newUser.getName());
-        this.setEmail(newUser.getEmail());
-    }
 }

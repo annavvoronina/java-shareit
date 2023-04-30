@@ -16,6 +16,7 @@ import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.StatusBooking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.IllegalStateException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -83,8 +84,15 @@ public class BookingServiceTest {
         assertEquals(bookingDb.getId(), bookingDto.getId());
         assertEquals(bookingDb.getStart(), bookingDto.getStart());
         assertEquals(bookingDb.getEnd(), bookingDto.getEnd());
+
+        BookingDto bookingDto1 = new BookingDto(1L, LocalDateTime.now().minusDays(2), LocalDateTime.now().plusDays(2), 1L, 1L);
+        assertThrows(BadRequestException.class, () -> bookingService.createBooking(bookingDto1, 1L));
+
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThrows(ObjectNotFoundException.class, () -> bookingService.createBooking(bookingDto, 1L));
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThrows(ObjectNotFoundException.class, () -> bookingService.createBooking(bookingDto, 5L));
     }
 
     @Order(2)
@@ -107,6 +115,8 @@ public class BookingServiceTest {
         assertEquals(booking.getItem().getId(), bookingResponseDto.getItem().getId());
         assertEquals(booking.getItem().getName(), bookingResponseDto.getItem().getName());
         assertEquals(booking.getStart(), bookingResponseDto.getStart());
+        assertThrows(ObjectNotFoundException.class, () -> bookingService.getBooking(2L, 7L));
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.empty());
         assertThrows(ObjectNotFoundException.class, () -> bookingService.getBooking(2L, 7L));
     }
 
