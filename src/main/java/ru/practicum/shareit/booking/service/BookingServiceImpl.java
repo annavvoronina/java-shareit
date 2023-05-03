@@ -39,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponseDto createBooking(BookingDto bookingDto, Long userId) {
         Booking newBooking = new Booking();
         BookingMapper.toBooking(newBooking, bookingDto);
-        if (bookingDto.getStart().isBefore(LocalDateTime.now()) || !(bookingDto.getStart().isBefore(bookingDto.getEnd()))) {
+        if (!(bookingDto.getStart().isBefore(bookingDto.getEnd()))) {
             throw new BadRequestException("Некорректные даты бронирования");
         }
         var booker = userRepository.findById(userId);
@@ -59,16 +59,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto getBooking(Long id, Long userId) {
-        var booking = bookingRepository.findById(id);
-        if (booking.isPresent()) {
-            if (!Objects.equals(booking.get().getBooker().getId(), userId) &&
-                    !Objects.equals(booking.get().getItem().getOwner().getId(), userId)) {
-                throw new ObjectNotFoundException("Вещь другого собственника:" + userId);
-            }
-            return BookingMapper.toBookingResponseDto(booking.get());
-        } else {
-            throw new ObjectNotFoundException("Бронирование не найдено");
+        var booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Бронирование не найдено"));
+        if (!Objects.equals(booking.getBooker().getId(), userId) &&
+                !Objects.equals(booking.getItem().getOwner().getId(), userId)) {
+            throw new ObjectNotFoundException("Вещь другого собственника:" + userId);
         }
+        return BookingMapper.toBookingResponseDto(booking);
     }
 
     @Override
@@ -98,9 +95,7 @@ public class BookingServiceImpl implements BookingService {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден: " + userId));
         State state = checkState(stringState).orElseThrow(() -> new IllegalStateException("Unknown state: " + stringState));
-        return stateToRepository(booker, state, pageable)
-                .stream()
-                .collect(Collectors.toList());
+        return new ArrayList<>(stateToRepository(booker, state, pageable));
     }
 
     @Override
@@ -110,10 +105,7 @@ public class BookingServiceImpl implements BookingService {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден: " + userId));
         State state = checkState(stringState).orElseThrow(() -> new IllegalStateException("Unknown state: " + stringState));
-        return stateToRepositoryAndOwner(booker, state, pageable)
-                .stream()
-                .filter(b -> Objects.equals(b.getItem().getOwnerId(), userId))
-                .collect(Collectors.toList());
+        return new ArrayList<>(stateToRepositoryAndOwner(booker, state, pageable));
     }
 
     public List<BookingResponseDto> stateToRepositoryAndOwner(User owner, State state, Pageable pageable) {

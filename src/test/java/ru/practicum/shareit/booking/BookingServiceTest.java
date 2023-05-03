@@ -85,7 +85,7 @@ public class BookingServiceTest {
         assertEquals(bookingDb.getStart(), bookingDto.getStart());
         assertEquals(bookingDb.getEnd(), bookingDto.getEnd());
 
-        BookingDto bookingDto1 = new BookingDto(1L, LocalDateTime.now().minusDays(2), LocalDateTime.now().plusDays(2), 1L, 1L);
+        BookingDto bookingDto1 = new BookingDto(1L, LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(1), 1L, 1L);
         assertThrows(BadRequestException.class, () -> bookingService.createBooking(bookingDto1, 1L));
 
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());

@@ -71,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemResponseDto getItemById(Long id, Long userId) {
         Item itemDb = itemRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException(String.format("Вещь не найдена", id)));
+                .orElseThrow(() -> new ObjectNotFoundException(String.format("Вещь не найдена" + id)));
         return addBookingsCommentsItem(itemDb, userId);
     }
 
@@ -85,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> comments = commentRepository.findAllByItemIn(items);
         Map<Long, List<CommentResponseDto>> commentsByItemIds = comments.stream()
                 .map(CommentMapper::toCommentResponseDto)
-                .collect(Collectors.groupingBy(comment -> comment.getItemId(), Collectors.toList()));
+                .collect(Collectors.groupingBy(CommentResponseDto::getItemId, Collectors.toList()));
         LocalDateTime now = LocalDateTime.now();
         List<Booking> lastBookings = bookingRepository.findAllByItemInAndStartLessThanEqualAndStatusIsOrderByEndDesc(items, now, StatusBooking.APPROVED);
         Map<Long, Booking> lastBookingsByItemIds = lastBookings.stream()
@@ -112,7 +112,7 @@ public class ItemServiceImpl implements ItemService {
         Pageable pageable;
         pageable = PageRequest.of(from / size, size);
         if (StringUtils.isBlank(text)) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         return itemRepository.search(text, pageable)
                 .stream()

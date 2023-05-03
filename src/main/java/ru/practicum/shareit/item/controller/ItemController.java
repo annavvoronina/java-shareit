@@ -28,8 +28,7 @@ public class ItemController {
 
     @GetMapping
     public List<ItemResponseDto> findAll(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                         @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                         @Positive @RequestParam(name = "size", defaultValue = "100") Integer size) {
+                                         @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from, @Positive @RequestParam(name = "size", defaultValue = "100") Integer size) {
         return itemService.getItemsByUserId(userId, from, size);
     }
 

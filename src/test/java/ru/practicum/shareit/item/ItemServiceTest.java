@@ -66,7 +66,7 @@ class ItemServiceTest {
         user = new User(1L, "user", "user@email.ru");
         item = new Item(1L, "item", "item test", true, user, new ItemRequest());
         comment = new Comment(1L, "Comment", item, user, LocalDateTime.now());
-        commentDto = new CommentDto(1L, "Comment", LocalDateTime.now(), "Author Name");
+        commentDto = new CommentDto(1L, "Comment");
         itemDto = new ItemDto(1L, "item", "item test", true, 1L);
         booking = new Booking(2L, LocalDateTime.now(), LocalDateTime.now().minusDays(1), item, user,
                 StatusBooking.APPROVED);
