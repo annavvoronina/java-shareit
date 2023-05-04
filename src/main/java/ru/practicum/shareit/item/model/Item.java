@@ -34,13 +34,4 @@ public class Item {
     private User owner;
     @OneToOne
     private ItemRequest request;
-
-    public Item(Item newItem) {
-        this.setId(newItem.getId());
-        this.setName(newItem.getName());
-        this.setDescription(newItem.getDescription());
-        this.setAvailable(newItem.getAvailable());
-        this.setOwner(newItem.getOwner());
-        this.setRequest(newItem.getRequest());
-    }
 }
