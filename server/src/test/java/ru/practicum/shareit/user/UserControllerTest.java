@@ -39,13 +39,11 @@ class UserControllerTest {
     private UserService userService;
     private UserDto userDto;
     private UserDto userDto2;
-    private UserDto userDto3;
 
     @BeforeEach
     void beforeEach() {
         userDto = new UserDto(1L, "User1", "user@email.ru");
         userDto2 = new UserDto(1L, "User1", "mail@email.ru");
-        userDto3 = new UserDto(1L, "User1", "mail-email.ru");
     }
 
     @Test
@@ -59,16 +57,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto.getName()), String.class))
                 .andExpect(jsonPath("$.email", is(userDto.getEmail()), String.class));
-    }
-
-    @Test
-    void createUserFailEmailTest() throws Exception {
-        String body = mapper.writeValueAsString(userDto3);
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andReturn();
     }
 
     @Test

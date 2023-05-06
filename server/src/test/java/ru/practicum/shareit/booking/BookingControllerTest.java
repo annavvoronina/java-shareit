@@ -44,34 +44,6 @@ class BookingControllerTest {
     }
 
     @Test
-    void createBookingFailStartTest() throws Exception {
-        LocalDateTime start = LocalDateTime.now().minusDays(1);
-        LocalDateTime end = LocalDateTime.now().plusDays(2);
-        BookingDto booking = new BookingDto(1L, start, end, 1L, 1L);
-        String body = mapper.writeValueAsString(booking);
-        mockMvc.perform(post("/bookings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", "1")
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
-
-    @Test
-    void createBookingFailEndTest() throws Exception {
-        LocalDateTime start = LocalDateTime.now().plusDays(1);
-        LocalDateTime end = null;
-        BookingDto booking = new BookingDto(1L, start, end, 1L, 1L);
-        String body = mapper.writeValueAsString(booking);
-        mockMvc.perform(post("/bookings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", "1")
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
-
-    @Test
     void updateBookingTest() throws Exception {
         mockMvc.perform(patch("/bookings/1")
                         .contentType(MediaType.APPLICATION_JSON)

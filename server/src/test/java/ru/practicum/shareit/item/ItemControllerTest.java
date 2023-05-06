@@ -43,9 +43,7 @@ class ItemControllerTest {
     private UserRepository userRepository;
     private User user;
     private ItemDto itemDto;
-    private ItemDto itemDto1;
     private ItemResponseDto itemResponseDto;
-    private ItemResponseDto itemResponseDto1;
     private CommentDto commentDto;
 
     @BeforeEach
@@ -53,9 +51,7 @@ class ItemControllerTest {
         userRepository = mock(UserRepository.class);
         user = new User(1L, "user", "user@email.ru");
         itemDto = new ItemDto(1L, "item", "item test", true, 1L);
-        itemDto1 = new ItemDto(1L, "item", "", true, 1L);
         itemResponseDto = new ItemResponseDto(1L, "item", "item test", true, null, null, null, 1L);
-        itemResponseDto1 = new ItemResponseDto(1L, "item", "", true, null, null, null, 1L);
         commentDto = new CommentDto(1L, "Comment for item");
     }
 
@@ -70,20 +66,6 @@ class ItemControllerTest {
                         .content(body)
                         .header("X-Sharer-User-Id", "1"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void createItemFailDescriptionTest() throws Exception {
-        when(userRepository.save(user)).thenReturn(user);
-        userRepository.save(user);
-        when(itemService.createItem(itemDto1, 1L)).thenReturn(itemResponseDto1);
-        String body = mapper.writeValueAsString(itemDto1);
-        mockMvc.perform(post("/items")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body)
-                        .header("X-Sharer-User-Id", "1"))
-                .andExpect(status().isBadRequest())
-                .andReturn();
     }
 
     @Test
