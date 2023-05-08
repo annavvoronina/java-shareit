@@ -178,7 +178,7 @@ public class BookingServiceTest {
                 any(Pageable.class))).thenReturn(pagedResponse1);
         BookingResponseDto bookingDb3 = bookingService.stateToRepositoryAndOwner(user, State.WAITING, pageable).get(0);
         assertNotNull(bookingDb3);
-        when(bookingRepository.findAllByItemOwnerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(any(User.class),
+        when(bookingRepository.findAllByItemOwnerAndStartIsBeforeAndEndIsAfterOrderByIdDesc(any(User.class),
                 any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class))).thenReturn(pagedResponse1);
         BookingResponseDto bookingDb4 = bookingService.stateToRepositoryAndOwner(user, State.CURRENT, pageable).get(0);
         assertNotNull(bookingDb4);

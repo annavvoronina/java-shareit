@@ -117,7 +117,7 @@ public class BookingServiceImpl implements BookingService {
                 result = bookingRepository.findAllByItemOwnerIdOrderByStartDesc(owner.getId(), pageable);
                 break;
             case CURRENT:
-                result = bookingRepository.findAllByItemOwnerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(owner, now, now, pageable);
+                result = bookingRepository.findAllByItemOwnerAndStartIsBeforeAndEndIsAfterOrderByIdDesc(owner, now, now, pageable);
                 break;
             case PAST:
                 result = bookingRepository.findAllByItemOwnerIdAndEndIsBeforeAndStatusIsOrderByStartDesc(owner.getId(), now, StatusBooking.APPROVED, pageable);
