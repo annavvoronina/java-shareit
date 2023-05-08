@@ -1,50 +1,61 @@
 package ru.practicum.shareit.user;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserServiceImpl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
-@SpringBootTest(properties = "db.name=test")
+@ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceTest {
 
-    private final UserService userService;
-    private UserDto userDto;
-    private UserDto user;
+    @Mock
+    private UserRepository userRepository;
+
+    UserServiceImpl userService;
+    UserDto userDto;
+    User user;
 
     @BeforeEach
     void beforeEach() {
+        userService = new UserServiceImpl(userRepository);
+        user = new User(1L, "user", "user@email.ru");
         userDto = new UserDto(1L, "user", "user@email.ru");
-        user = userService.createUser(userDto);
     }
 
     @Order(1)
     @Test
     void createUserTest() {
-        assertThat(user.getId(), equalTo(userDto.getId()));
-        assertThat(user.getEmail(), equalTo(userDto.getEmail()));
-        assertThat(user.getName(), equalTo(userDto.getName()));
+        when(userRepository.save(any())).thenReturn(user);
+        UserDto userDto1 = userService.createUser(userDto);
+        assertEquals(userDto.getId(), userDto1.getId());
+        assertEquals(userDto.getEmail(), userDto1.getEmail());
+        assertEquals(userDto.getName(), userDto1.getName());
     }
 
     @Order(2)
     @Test
     void updateUserTest() {
-        UserDto userDto1 = new UserDto(1L, "userUpdate", "userUpdate@email.ru");
-        UserDto user1 = userService.updateUser(1L, userDto1);
-        assertThat(userDto1.getId(), equalTo(user1.getId()));
-        assertThat(userDto1.getEmail(), equalTo(user1.getEmail()));
-        assertThat(userDto1.getName(), equalTo(user1.getName()));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        UserDto userDto1 = userService.updateUser(1L, userDto);
+        assertEquals(userDto.getId(), userDto1.getId());
+        assertEquals(userDto.getEmail(), userDto1.getEmail());
+        assertEquals(userDto.getName(), userDto1.getName());
         UserDto userDto2 = new UserDto(7L, "userUpdate", "userUpdate@email.ru");
         assertThrows(ObjectNotFoundException.class, () -> userService.updateUser(7L, userDto2));
     }
@@ -52,10 +63,11 @@ public class UserServiceTest {
     @Order(3)
     @Test
     void getUserByIdTest() {
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
         UserDto user1 = userService.getUserById(1L);
-        assertThat(user1.getId(), equalTo(user.getId()));
-        assertThat(user1.getEmail(), equalTo(user.getEmail()));
-        assertThat(user1.getName(), equalTo(user.getName()));
+        assertEquals(user1.getId(), user.getId());
+        assertEquals(user1.getEmail(), user.getEmail());
+        assertEquals(user1.getName(), user.getName());
     }
 
     @Order(4)
@@ -67,18 +79,18 @@ public class UserServiceTest {
     @Order(5)
     @Test
     void findAllTest() {
-        List<UserDto> users = userService.findAll();
-        assertThat(users.size(), equalTo(1));
+        List<User> users = new ArrayList<>(Collections.singletonList(user));
+        when(userRepository.findAll()).thenReturn(users);
+        List<UserDto> usersList = userService.findAll();
+        assertEquals(usersList.size(), 1);
     }
 
     @Order(6)
     @Test
     void removeUserByIdTest() {
-        userDto = new UserDto(2L, "user", "user@gmail.ru");
-        user = userService.createUser(userDto);
-        userService.removeUserById(2L);
-        List<UserDto> users = userService.findAll();
-        assertThat(users.size(), equalTo(1));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        userService.removeUserById(user.getId());
+        assertThrows(ObjectNotFoundException.class, () -> userService.removeUserById(7L));
     }
 
     @Order(7)

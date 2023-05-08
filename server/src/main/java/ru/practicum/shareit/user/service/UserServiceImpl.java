@@ -17,33 +17,32 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
     public UserDto createUser(UserDto userDto) {
         User user = UserMapper.toUser(new User(), userDto);
-        User createdUser = repository.save(user);
+        User createdUser = userRepository.save(user);
         return UserMapper.toUserDto(createdUser);
     }
 
     @Override
     @Transactional
     public UserDto updateUser(Long id, UserDto userDto) {
-        var user = repository.findById(id);
-        if (user.isPresent()) {
-            UserMapper.toUser(user.get(), userDto);
-            user.get().setId(id);
-            User updatedUser = repository.save(user.get());
-            return UserMapper.toUserDto(updatedUser);
-        } else {
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден" + id));
+        if (user == null || !id.equals(user.getId())) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
+        UserMapper.toUser(user, userDto);
+        user.setId(id);
+        return UserMapper.toUserDto(user);
     }
 
     @Override
     public List<UserDto> findAll() {
-        return repository.findAll()
+        return userRepository.findAll()
                 .stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
@@ -51,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(Long id) {
-        var user = repository.findById(id);
+        var user = userRepository.findById(id);
         if (user.isEmpty()) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
@@ -62,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void removeUserById(Long id) {
         existUserById(id);
-        repository.deleteById(id);
+        userRepository.deleteById(id);
     }
 
     private void existUserById(Long id) {

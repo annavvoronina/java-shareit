@@ -48,6 +48,7 @@ class ItemServiceTest {
     private BookingRepository bookingRepository;
     @Mock
     private RequestRepository requestRepository;
+
     private ItemServiceImpl itemService;
     private ItemDto itemDto;
     private Item item;

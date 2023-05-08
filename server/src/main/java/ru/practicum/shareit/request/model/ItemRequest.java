@@ -19,5 +19,6 @@ public class ItemRequest {
     private String description;
     @ManyToOne
     private User requester;
+    @Column
     private LocalDateTime created;
 }
